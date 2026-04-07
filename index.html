@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOLSHEIM — Bugatti × Emir Kolburan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #040408;
+      --blue-deep: #0a0f1e;
+      --cobalt: #1a3cff;
+      --cobalt-dim: #0d1f8a;
+      --cobalt-glow: rgba(26, 60, 255, 0.18);
+      --cobalt-line: rgba(26, 60, 255, 0.5);
+      --white: #f0f0f0;
+      --white-dim: rgba(240, 240, 240, 0.55);
+      --white-faint: rgba(240, 240, 240, 0.08);
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Cormorant Garamond', serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── Custom Cursor ── */
+    .cursor {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--cobalt);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.2s;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 32px; height: 32px;
+      border: 1px solid var(--cobalt-line);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.2s, height 0.2s, border-color 0.2s;
+    }
+    body:has(a:hover) .cursor-ring,
+    body:has(button:hover) .cursor-ring {
+      width: 48px; height: 48px;
+      border-color: var(--cobalt);
+    }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── Corner brackets ── */
+    .bracket {
+      position: fixed;
+      width: 28px; height: 28px;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .bracket::before, .bracket::after {
+      content: '';
+      position: absolute;
+      background: var(--cobalt-line);
+    }
+    .bracket::before { width: 100%; height: 1px; top: 0; }
+    .bracket::after { width: 1px; height: 100%; top: 0; }
+    .bracket.tl { top: 20px; left: 20px; }
+    .bracket.tr { top: 20px; right: 20px; transform: scaleX(-1); }
+    .bracket.bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
+    .bracket.br { bottom: 20px; right: 20px; transform: scale(-1); }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 24px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 200;
+      mix-blend-mode: normal;
+    }
+    nav::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 48px; right: 48px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cobalt-line), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    nav.scrolled::after { opacity: 1; }
+    nav.scrolled { background: rgba(4,4,8,0.85); backdrop-filter: blur(12px); }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .nav-logo-eb {
+      width: 28px; height: 28px;
+      border: 1px solid var(--cobalt-line);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cobalt);
+      letter-spacing: 0.05em;
+    }
+    .nav-logo-text {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.25em;
+      color: var(--white-dim);
+      text-transform: uppercase;
+    }
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: var(--cobalt);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* ── Hero ── */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('teaser.png');
+      background-size: cover;
+      background-position: center 30%;
+      transform: scale(1.04);
+      animation: heroReveal 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes heroReveal {
+      from { transform: scale(1.12); opacity: 0; }
+      to   { transform: scale(1.04); opacity: 1; }
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(4,4,8,0.2) 0%,
+        rgba(4,4,8,0.05) 40%,
+        rgba(4,4,8,0.6) 75%,
+        rgba(4,4,8,0.98) 100%
+      );
+    }
+
+    /* Blue vignette sides */
+    .hero-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 100% at 0% 50%, rgba(10,15,30,0.7) 0%, transparent 100%),
+        radial-gradient(ellipse 60% 100% at 100% 50%, rgba(10,15,30,0.7) 0%, transparent 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 48px 64px;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--cobalt);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s forwards;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(52px, 8vw, 112px);
+      font-weight: 800;
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.9s 1s forwards;
+    }
+    .hero-title span {
+      display: block;
+      color: var(--cobalt);
+      font-style: normal;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-body);
+      font-size: clamp(14px, 1.5vw, 18px);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--white-dim);
+      max-width: 520px;
+      line-height: 1.6;
+      opacity: 0;
+      animation: fadeUp 0.8s 1.2s forwards;
+    }
+
+    .hero-bottom {
+      position: relative;
+      z-index: 2;
+      padding: 0 48px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      opacity: 0;
+      animation: fadeUp 0.8s 1.5s forwards;
+    }
+
+    .hero-meta {
+      font-family: var(--font-display);
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--cobalt-line);
+    }
+
+    .hero-scroll {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-display);
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--white-dim);
+      text-decoration: none;
+    }
+    .hero-scroll-line {
+      width: 40px; height: 1px;
+      background: var(--cobalt-line);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-scroll-line::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--cobalt);
+      transform: translateX(-100%);
+      animation: scanLine 2s 2s infinite;
+    }
+    @keyframes scanLine {
+      0%   { transform: translateX(-100%); }
+      50%  { transform: translateX(0); }
+      100% { transform: translateX(100%); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, var(--cobalt-dim), var(--cobalt));
+      animation: progressLoad 2.5s 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+    @keyframes progressLoad {
+      to { width: 100%; }
+    }
+
+    /* ── Section base ── */
+    section {
+      position: relative;
+      z-index: 2;
+    }
+
+    .section-label {
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--cobalt);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 24px; height: 1px;
+      background: var(--cobalt);
+    }
+
+    /* ── Concept section ── */
+    #concept {
+      padding: 120px 48px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+      border-top: 1px solid var(--white-faint);
+    }
+
+    .concept-left {}
+
+    .concept-heading {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      margin-bottom: 32px;
+    }
+    .concept-heading em {
+      display: block;
+      font-style: italic;
+      font-weight: 300;
+      color: var(--white-dim);
+      font-family: var(--font-body);
+      font-size: 0.65em;
+      letter-spacing: 0.02em;
+      margin-top: 4px;
+    }
+
+    .concept-body {
+      font-family: var(--font-body);
+      font-size: 17px;
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--white-dim);
+      max-width: 480px;
+    }
+    .concept-body p + p { margin-top: 20px; }
+
+    .concept-right {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--white-faint);
+      transition: border-color 0.2s;
+    }
+    .spec-row:hover { border-bottom-color: var(--cobalt-line); }
+    .spec-key {
+      font-family: var(--font-display);
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--white-dim);
+    }
+    .spec-value {
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-style: italic;
+      color: var(--white);
+      text-align: right;
+    }
+
+    /* ── Process section ── */
+    #process {
+      padding: 0 0 120px;
+    }
+
+    .process-image-wrap {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+    .process-image-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(4,4,8,0.6) 0%,
+        transparent 15%,
+        transparent 85%,
+        rgba(4,4,8,0.7) 100%
+      );
+      z-index: 1;
+    }
+    .process-image-wrap img {
+      width: 100%;
+      display: block;
+      filter: brightness(0.9);
+      transition: filter 0.4s;
+    }
+    .process-image-wrap:hover img { filter: brightness(1.0); }
+
+    .process-tag {
+      position: absolute;
+      z-index: 2;
+      font-family: var(--font-display);
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--cobalt);
+      padding: 8px 14px;
+      border: 1px solid var(--cobalt-line);
+      background: rgba(4,4,8,0.6);
+      backdrop-filter: blur(4px);
+    }
+    .process-tag.top-right { top: 32px; right: 48px; }
+    .process-tag.bottom-left { bottom: 32px; left: 48px; }
+
+    .process-caption {
+      padding: 48px 48px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+      border-top: 1px solid var(--white-faint);
+    }
+    .process-caption-item {
+      padding: 28px 0;
+      border-right: 1px solid var(--white-faint);
+      padding-right: 24px;
+    }
+    .process-caption-item:last-child { border-right: none; }
+    .caption-num {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--white-faint);
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+    .caption-title {
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+    .caption-text {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--white-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Identity section ── */
+    #identity {
+      padding: 80px 48px 120px;
+      border-top: 1px solid var(--white-faint);
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .identity-statement {
+      font-family: var(--font-body);
+      font-size: clamp(22px, 3vw, 38px);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--white);
+    }
+    .identity-statement strong {
+      font-style: normal;
+      font-weight: 400;
+      color: var(--cobalt);
+    }
+
+    .identity-card {
+      border: 1px solid var(--white-faint);
+      padding: 32px;
+      position: relative;
+    }
+    .identity-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 40px; height: 2px;
+      background: var(--cobalt);
+    }
+    .identity-name {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+    .identity-title {
+      font-family: var(--font-display);
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--cobalt);
+      margin-bottom: 24px;
+    }
+    .identity-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .identity-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .identity-link:hover { color: var(--cobalt); }
+    .identity-link-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--cobalt-dim);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .identity-link:hover .identity-link-dot { background: var(--cobalt); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--white-faint);
+      padding: 32px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+    .footer-left {
+      font-family: var(--font-display);
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--white-faint);
+    }
+    .footer-right {
+      font-family: var(--font-display);
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--white-faint);
+    }
+    .footer-line {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--cobalt), transparent 60%);
+      opacity: 0.4;
+    }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.35s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      nav { padding: 20px 24px; }
+      .nav-links { display: none; }
+      #concept { grid-template-columns: 1fr; gap: 48px; padding: 72px 24px; }
+      .concept-body { max-width: 100%; }
+      .hero-content { padding: 0 24px 48px; }
+      .hero-bottom { padding: 0 24px 24px; }
+      .process-caption { grid-template-columns: 1fr; padding: 32px 24px 0; }
+      .process-caption-item { border-right: none; border-bottom: 1px solid var(--white-faint); }
+      .process-tag.top-right { right: 24px; top: 20px; }
+      .process-tag.bottom-left { left: 24px; bottom: 20px; }
+      #identity { grid-template-columns: 1fr; padding: 60px 24px 80px; }
+      footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Corner brackets -->
+  <div class="bracket tl"></div>
+  <div class="bracket tr"></div>
+  <div class="bracket bl"></div>
+  <div class="bracket br"></div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <a href="#hero" class="nav-logo">
+      <div class="nav-logo-eb">EB</div>
+      <span class="nav-logo-text">Emir Kolburan</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#concept">Concept</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#identity">About</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <p class="hero-eyebrow">Bugatti × Emir Kolburan — 2025</p>
+      <h1 class="hero-title">
+        MOL<span>SHEIM</span>
+      </h1>
+      <p class="hero-subtitle">
+        A conceptual football boot derived from the aerodynamic surface language of the Type 57 SC Atlantic — where racing heritage meets athletic precision.
+      </p>
+    </div>
+
+    <div class="hero-bottom">
+      <span class="hero-meta">Type 57 SC Atlantic Concept &nbsp;/&nbsp; #Molsheim</span>
+      <a href="#concept" class="hero-scroll">
+        <span class="hero-scroll-line"></span>
+        Scroll
+      </a>
+    </div>
+
+    <div class="progress-bar"></div>
+  </section>
+
+  <!-- Concept -->
+  <section id="concept">
+    <div class="concept-left reveal">
+      <div class="section-label">Design Brief</div>
+      <h2 class="concept-heading">
+        Speed,<br>Translated.
+        <em>From Alsace to the pitch.</em>
+      </h2>
+      <div class="concept-body">
+        <p>
+          The Molsheim project takes its name from Bugatti's spiritual home in Alsace, France — the town where Ettore Bugatti first forged the union of art and mechanical excellence. This boot is not a collaboration proposal; it is a design inquiry.
+        </p>
+        <p>
+          What happens when the sinuous dorsal spine of the Atlantic, its riveted aluminium flanks, and its aerodynamic arch are reinterpreted not in steel and carbon — but in textile, TPU, and turf-ready outsole geometry?
+        </p>
+        <p>
+          The answer is a form that belongs to both worlds: fast enough for the pitch, refined enough for the showroom.
+        </p>
+      </div>
+    </div>
+
+    <div class="concept-right reveal reveal-delay-2">
+      <div class="section-label">Specifications</div>
+      <div class="spec-row">
+        <span class="spec-key">Project Type</span>
+        <span class="spec-value">Conceptual Footwear Design</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Category</span>
+        <span class="spec-value">Football Boot / Sneaker Hybrid</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Inspiration</span>
+        <span class="spec-value">Bugatti Type 57 SC Atlantic</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Upper Material</span>
+        <span class="spec-value">Carbon Mesh over Calfskin</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Outsole</span>
+        <span class="spec-value">High-gloss Transparent TPU</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Fastening</span>
+        <span class="spec-value">Aero-wire Lacing System</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Tools</span>
+        <span class="spec-value">Rhino 3D, D5 Render</span>
+      </div>
+      <div class="spec-row">
+        <span class="spec-key">Year</span>
+        <span class="spec-value">2025</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section id="process">
+    <div class="process-image-wrap reveal">
+      <img src="sketch.png" alt="Molsheim Design Process — Sketch and CMF Studies" loading="lazy" />
+      <div class="process-tag top-right">Process Documentation</div>
+      <div class="process-tag bottom-left">C-Line Form Exploration</div>
+    </div>
+
+    <div class="process-caption">
+      <div class="process-caption-item reveal">
+        <div class="caption-num">01</div>
+        <div class="caption-title">Form Language</div>
+        <p class="caption-text">The C-line, derived from Bugatti's iconic radiator spine, was studied across twelve geometric variations — fluid, geometric, branded, and carbon-inflected.</p>
+      </div>
+      <div class="process-caption-item reveal reveal-delay-1">
+        <div class="caption-num">02</div>
+        <div class="caption-title">Material Study</div>
+        <p class="caption-text">CMF exploration centred on the outsole: high-gloss transparent TPU allowing cleat geometry and light refraction to become visible structural elements.</p>
+      </div>
+      <div class="process-caption-item reveal reveal-delay-2">
+        <div class="caption-num">03</div>
+        <div class="caption-title">Heritage Coding</div>
+        <p class="caption-text">The EB monogram and Type 57 SC lettering are integrated as typographic details — not applied branding, but surface-embedded identity marks.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Identity -->
+  <section id="identity">
+    <div class="reveal">
+      <div class="section-label">Designer</div>
+      <p class="identity-statement">
+        Industrial design is the discipline of making ideas <strong>inhabit</strong> the physical world — where material logic, human perception, and cultural meaning converge into a single object.
+      </p>
+    </div>
+
+    <div class="identity-card reveal reveal-delay-2">
+      <div class="identity-name">Emir Kolburan</div>
+      <div class="identity-title">Industrial Designer</div>
+      <div class="identity-links">
+        <a href="mailto:your@email.com" class="identity-link">
+          <span class="identity-link-dot"></span>
+          your@email.com
+        </a>
+        <a href="https://linkedin.com/in/yourprofile" target="_blank" class="identity-link">
+          <span class="identity-link-dot"></span>
+          LinkedIn
+        </a>
+        <a href="#" class="identity-link">
+          <span class="identity-link-dot"></span>
+          Download CV
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <span class="footer-left">© 2025 Emir Kolburan</span>
+    <span class="footer-right">Molsheim — Type 57 SC Atlantic Concept</span>
+    <div class="footer-line"></div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // Nav scroll state
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
