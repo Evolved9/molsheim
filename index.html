@@ -179,7 +179,7 @@
     .hero-bg {
       position: absolute;
       inset: 0;
-      background-image: url('teaser.png');
+      background-image: url('33ayakkabi.png');
       background-size: cover;
       background-position: center 30%;
       transform: scale(1.04);
@@ -195,11 +195,12 @@
       inset: 0;
       background: linear-gradient(
         to bottom,
-        rgba(4,4,8,0.0) 0%,
-        rgba(4,4,8,0.0) 50%,
-        rgba(4,4,8,0.75) 85%,
+        rgba(4,4,8,0.25) 0%,
+        rgba(4,4,8,0.1) 40%,
+        rgba(4,4,8,0.65) 75%,
         rgba(4,4,8,0.98) 100%
       );
+      backdrop-filter: blur(1px);
     }
 
     .hero-content {
@@ -746,6 +747,11 @@
         <span class="spec-value">2025</span>
       </div>
     </div>
+  </section>
+
+  <!-- Teaser Full -->
+  <section id="teaser-full" style="position:relative; z-index:2; line-height:0;">
+    <img src="teaser.png" alt="Molsheim Teaser" style="width:100%; display:block;" loading="lazy" />
   </section>
 
   <!-- Process -->
